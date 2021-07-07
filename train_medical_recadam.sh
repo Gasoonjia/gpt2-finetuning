@@ -1,7 +1,7 @@
 # DATA_FILE=/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/dataset/booksummaries.txt
-DATA_FILE=/home/gasoon/research/offline-rl/exp/GPT2-finetune/medical-nlp/train_text.txt
+DATA_FILE=./medical-nlp/train.txt
 EVAL_FILE=stas/openwebtext-10k
-OUTPUT_DIR=/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/medical-nlp/train_output/
+OUTPUT_DIR=./medical-nlp/train_output/
 
 python run_gpt2_recadam.py \
 --output_dir=$OUTPUT_DIR \

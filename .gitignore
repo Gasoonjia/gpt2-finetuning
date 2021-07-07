@@ -1,6 +1,3 @@
 py150
-medical-nlp/data
-cmu-book/dataset
-cmu-book/transformers
-cmu-book/train_output/*
-*/train.txt
+medical-nlp
+cmu-book
