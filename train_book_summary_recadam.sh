@@ -19,6 +19,7 @@ python run_gpt2_recadam.py \
 --do_train \
 --train_file=$DATA_FILE \
 --logging_strategy epoch \
---optimizer_type RecAdam
+--optimizer_type RecAdam \
+--cached_dir ~/code/.transformer_cache/ \
 # --evaluate_during_training \
 # --line_by_line \
