@@ -14,7 +14,7 @@ python run_gpt2_recadam.py \
 --learning_rate 5e-5 \
 --num_train_epochs=10 \
 --overwrite_output_dir \
---evaluation_strategy epoch \
+--evaluation_strategy epoch  \
 --validation_file=$DATA_FILE \
 --do_train \
 --train_file=$DATA_FILE \
@@ -22,5 +22,6 @@ python run_gpt2_recadam.py \
 --optimizer_type RecAdam \
 --cache_dir ~/code/.transformer_cache/ \
 --recadam_anneal_k 5e-4 \
+--recadam_anneal_t0 0 \
 # --evaluate_during_training \
 # --line_by_line \

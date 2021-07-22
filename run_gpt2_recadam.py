@@ -23,6 +23,7 @@ https://huggingface.co/models?filter=causal-lm
 
 import logging
 import math
+from mixout.mixout import mixout
 import os
 import sys
 from dataclasses import dataclass, field
@@ -31,7 +32,14 @@ from typing import Optional
 import datasets
 from datasets import load_dataset
 
+from pprint import pprint
+from mixout.mixout import Mixout
+
 import transformers
+
+import torch
+import torch.nn as nn
+
 from transformers import (
     CONFIG_MAPPING,
     MODEL_FOR_CAUSAL_LM_MAPPING,
@@ -177,7 +185,10 @@ class DataTrainingArguments:
     dataset_config_name: Optional[str] = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
-    train_file: Optional[str] = field(default=None, metadata={"help": "The input training data file (a text file)."})
+    train_file: Optional[str] = field(
+        default=None,
+        metadata={"help": "The input training data file (a text file)."}
+    )
     validation_file: Optional[str] = field(
         default=None,
         metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
@@ -413,6 +424,7 @@ def main():
             revision=model_args.model_revision,
             use_auth_token=True if model_args.use_auth_token else None,
         )
+    new_model._modules['transformer'].drop = Mixout
 
     pretrained_model = AutoModelForCausalLM.from_pretrained(
             model_args.model_name_or_path,
