@@ -70,9 +70,9 @@ from transformers import (
 )
 
 from transformers.testing_utils import CaptureLogger
-from transformers.trainer_utils import get_last_checkpoint
-from transformers.utils import check_min_version
-from transformers.utils.versions import require_version
+# from transformers.trainer_utils import get_last_checkpoint
+# from transformers.utils import check_min_version
+# from transformers.utils.versions import require_version
 
 # import RecAdam optimizer for unforgetting finetune
 from RecAdam.RecAdam import RecAdam
@@ -80,7 +80,7 @@ from RecAdam.RecAdam import RecAdam
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.9.0.dev0")
 
-require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
+# require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
 logger = logging.getLogger(__name__)
 
@@ -303,6 +303,7 @@ def main():
         + f"distributed training: {bool(training_args.local_rank != -1)}, 16-bits training: {training_args.fp16}"
     )
     logger.info(f"Training/evaluation parameters {training_args}")
+    logger.info(f"Data parameters {data_args}")
 
     # Detecting last checkpoint.
     last_checkpoint = None

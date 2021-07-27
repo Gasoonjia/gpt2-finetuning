@@ -62,7 +62,7 @@ if __name__ == '__main__':
         load_prefix_model = False
 
     assert  args.mode in ['data2text', 'triples', 'webnlg', 'writingPrompts', 'cnndm', 'xsum', 'sentiment', 'topic',
-                          'classify-sentiment', 'classify-topic']
+                          'classify-sentiment', 'classify-topic', 'lm']
 
     assert args.objective_mode in [0, 1]
     # 0 means the regular token level objective, which is sum / output_len
@@ -240,6 +240,22 @@ if __name__ == '__main__':
         folder_name = "classification_models/"
         assert args.optim_prefix == 'yes'
 
+    elif args.mode == 'lm':
+        # 2017 Challeng Version.
+        # TRAIN_FILE = "/u/scr/xlisali/WebNLG/webnlg-dataset/webnlg_challenge_2017/train.json"
+        # TEST_FILE = "/u/scr/xlisali/WebNLG/webnlg-dataset/webnlg_challenge_2017/dev.json"
+
+        # TRAIN_FILE = "/home/gasoon/code/research/offline-rl/exp/GPT2-finetune/webnlg-dataset/webnlg_challenge_2017/train.json"
+        # TEST_FILE = "/home/gasoon/code/research/offline-rl/exp/GPT2-finetune/webnlg-dataset/webnlg_challenge_2017/dev.json"
+
+        # v2
+        # TRAIN_FILE = "/u/scr/xlisali/WebNLG/webnlg-dataset/release_v2/json/webnlg_release_v2_train.json"
+        # TEST_FILE =  "/u/scr/xlisali/WebNLG/webnlg-dataset/release_v2/json/webnlg_release_v2_dev.json"
+
+        TRAIN_FILE = "/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/train.txt"
+        TEST_FILE =  "/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/train.txt"
+
+        folder_name = "book_summary_models/"
 
 
 
@@ -275,8 +291,9 @@ if __name__ == '__main__':
     if args.notes is not None and 'large' in args.notes:
         OLD_MODEL = "gpt2-large"
     else:
-        OLD_MODEL = "gpt2-medium"
-
+        # OLD_MODEL = "gpt2-medium" changed by songhao
+        OLD_MODEL = "gpt2"
+        
     app = "--optim_prefix {} --preseqlen {} --prefix_mode {} --format_mode {} " \
           "--gradient_accumulation_steps {} --learning_rate {} --weight_decay {} --seed {} --disable_tqdm " \
           "--mid_dim {} --init_random {} --use_dropout {} --prefix_dropout {} --objective_mode {} ".\

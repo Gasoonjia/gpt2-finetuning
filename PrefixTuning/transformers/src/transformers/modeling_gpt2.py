@@ -543,6 +543,14 @@ class GPT2Model(GPT2PreTrainedModel):
                 FutureWarning,
             )
             past_key_values = kwargs.pop("past")
+        
+        if attention_mask is not None:
+            warnings.warn(
+                "The attention mask from dataset would be None for no bug. Force the attention mask into None and change it into a \
+                more elegent way further.",
+                FutureWarning,
+            )
+            attention_mask = None
         assert kwargs == {}, f"Unexpected keyword arguments: {list(kwargs.keys())}."
 
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
@@ -573,11 +581,18 @@ class GPT2Model(GPT2PreTrainedModel):
             past_length = 0
             past_key_values = [None] * len(self.h)
         else:
+            # print(len(past_key_values[0]))
+            # print(past_key_values[0][0].size())
+            # shape pf past_key_value is [12, 2, (bsz, 12, 5, 64)]
+            # exit()
             past_length = past_key_values[0][0].size(-2)
         if position_ids is None:
             device = input_ids.device if input_ids is not None else inputs_embeds.device
             position_ids = torch.arange(past_length, input_shape[-1] + past_length, dtype=torch.long, device=device)
             position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
+            # print(position_ids.size())
+            # print(position_ids)
+            # exit()
 
         # Attention mask.
         if attention_mask is not None:
@@ -633,6 +648,10 @@ class GPT2Model(GPT2PreTrainedModel):
         for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states.view(*output_shape),)
+            
+            # print(type(layer_past))
+            # print(len(layer_past)) # 2
+            # print(layer_past[0].size()) # torch.Size([2, 12, 5, 64])
 
             outputs = block(
                 hidden_states,

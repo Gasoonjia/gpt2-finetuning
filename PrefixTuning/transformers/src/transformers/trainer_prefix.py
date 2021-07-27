@@ -281,6 +281,7 @@ class Trainer_Prefix:
             logger.info("No `TrainingArguments` passed, using the current path as `output_dir`.")
             args = TrainingArguments("tmp_trainer")
         self.args = args
+
         # Seed must be set before instantiating the model when using model
         set_seed(self.args.seed)
         assert (
@@ -1688,6 +1689,11 @@ class Trainer_Prefix:
                 # aa_sent = self.ids_to_clean_text(self.tokenizer, inputs['input_ids'])
                 # for aa in aa_sent:
                 #     print(aa)
+
+                # print(inputs.keys())
+                # print(inputs['attention_mask'].size())
+                # print(inputs['attention_mask'])
+                # exit()
                 tr_loss += self.training_step(model, inputs)
                 # URGENT
                 # print('total_loss', tr_loss)

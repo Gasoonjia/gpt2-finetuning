@@ -18,10 +18,10 @@ python run_gpt2_recadam.py \
 --validation_file=$DATA_FILE \
 --do_train \
 --train_file=$DATA_FILE \
---logging_strategy epoch \
 --optimizer_type RecAdam \
 --cache_dir ~/code/.transformer_cache/ \
 --recadam_anneal_k 5e-4 \
 --recadam_anneal_t0 0 \
+# --logging_strategy epoch \
 # --evaluate_during_training \
 # --line_by_line \

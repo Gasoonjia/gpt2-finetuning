@@ -2,9 +2,11 @@ from datasets import load_dataset
 from transformers.testing_utils import CaptureLogger
 import transformers
 
-def load_lm_dataset(data_args, model_args, training_args, tokenizer, logger):
+
+def load_lm_dataset(data_args, model_args, tokenizer, logger):
     raw_datasets = load_dataset(
-            data_args.train_file, data_args.dataset_config_name, cache_dir=model_args.cache_dir
+            "text", data_files={'train': data_args.train_data_file, 
+            'validation': data_args.eval_data_file}
         )
     
     column_names = raw_datasets["train"].column_names
@@ -25,14 +27,14 @@ def load_lm_dataset(data_args, model_args, training_args, tokenizer, logger):
     tokenized_datasets = raw_datasets.map(
         tokenize_function,
         batched=True,
-        num_proc=data_args.preprocessing_num_workers,
+        num_proc=None,
         remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,
         desc="Running tokenizer on dataset",
     )
 
     if data_args.block_size is None:
-        block_size = tokenizer.model_max_length
+        block_size = tokenizer.model_max_length - model_args.preseqlen
         if block_size > 1024:
             logger.warning(
                 f"The tokenizer picked seems to have a very large `model_max_length` ({tokenizer.model_max_length}). "
@@ -40,12 +42,13 @@ def load_lm_dataset(data_args, model_args, training_args, tokenizer, logger):
             )
             block_size = 1024
     else:
-        if data_args.block_size > tokenizer.model_max_length:
+        if data_args.block_size > tokenizer.model_max_length - model_args.preseqlen:
             logger.warning(
-                f"The block_size passed ({data_args.block_size}) is larger than the maximum length for the model"
-                f"({tokenizer.model_max_length}). Using block_size={tokenizer.model_max_length}."
+                f"The block_size passed ({data_args.block_size}) is larger than the maximum input length for the model"
+                f"({tokenizer.model_max_length - model_args.preseqlen}). \
+                 Using block_size={tokenizer.model_max_length - model_args.preseqlen}."
             )
-        block_size = min(data_args.block_size, tokenizer.model_max_length)
+        block_size = min(data_args.block_size, tokenizer.model_max_length - model_args.preseqlen)
 
     # Main data processing function that will concatenate all texts from our dataset and generate chunks of block_size.
     def group_texts(examples):
@@ -66,26 +69,18 @@ def load_lm_dataset(data_args, model_args, training_args, tokenizer, logger):
     lm_datasets = tokenized_datasets.map(
         group_texts,
         batched=True,
-        num_proc=data_args.preprocessing_num_workers,
+        num_proc=None,
         load_from_cache_file=not data_args.overwrite_cache,
         desc=f"Grouping texts in chunks of {block_size}",
     )
 
-    if training_args.do_train:
-        if "train" not in tokenized_datasets:
-            raise ValueError("--do_train requires a train dataset")
-        train_dataset = lm_datasets["train"]
-        if data_args.max_train_samples is not None:
-            train_dataset = train_dataset.select(range(data_args.max_train_samples))
+    if "train" not in tokenized_datasets:
+        raise ValueError("--do_train requires a train dataset")
+    train_dataset = lm_datasets["train"]
 
-    if training_args.do_eval:
-        if "validation" not in tokenized_datasets:
-            raise ValueError("--do_eval requires a validation dataset")
-        eval_dataset = lm_datasets["validation"]
-        if data_args.max_eval_samples is not None:
-            eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
+    if "validation" not in tokenized_datasets:
+        raise ValueError("--do_eval requires a validation dataset")
+    eval_dataset = lm_datasets["validation"]
 
     return train_dataset, eval_dataset
-    
-
     

@@ -543,29 +543,29 @@ class PrefixTuning(GPT2PreTrainedModel):
         return past_key_values
 
     def forward(self,
-        input_ids=None,
-        weights=None,
-        control_code=None,
-        emb_match=None,
-        past_key_values=None,
-        attention_mask=None,
-        token_type_ids=None,
-        position_ids=None,
-        head_mask=None,
-        inputs_embeds=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        labels=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-        gpt2_model=None,
-        src=None,
-        tgt=None,
-        src_attn=None,
-        tgt_attn=None,
-        **kwargs,
+                input_ids=None,
+                weights=None,
+                control_code=None,
+                emb_match=None,
+                past_key_values=None,
+                attention_mask=None,
+                token_type_ids=None,
+                position_ids=None,
+                head_mask=None,
+                inputs_embeds=None,
+                encoder_hidden_states=None,
+                encoder_attention_mask=None,
+                labels=None,
+                use_cache=None,
+                output_attentions=None,
+                output_hidden_states=None,
+                return_dict=None,
+                gpt2_model=None,
+                src=None,
+                tgt=None,
+                src_attn=None,
+                tgt_attn=None,
+                **kwargs,
         ):
 
         #{"input_ids": batch, "labels": labels, 'src_attn': src_attn, 'tgt_attn':tgt_attn, 'src':src}
@@ -1084,6 +1084,8 @@ class PrefixEmbTuning(GPT2PreTrainedModel):
         #{"input_ids": batch, "labels": labels, 'src_attn': src_attn, 'tgt_attn':tgt_attn, 'src':src}
 
         bsz = input_ids.shape[0]
+        print('***************', self.mode_para)
+
 
         if self.mode_para == 2:
             past_key_values_prompt = self.get_prompt(src, gpt2=gpt2_model, bsz=bsz)

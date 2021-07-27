@@ -922,6 +922,7 @@ def main():
             print(model)
         else:
             ## in here
+            print(training_args.output_dir)
             print('Not in dataless setting, loading the control code. ')
             if 'sentiment' in  training_args.output_dir:
                 print('sentiment does need discri_labels')
@@ -946,11 +947,11 @@ def main():
                 print('data2text does need discri_labels' )
                 discri_labels = None
             elif 'triples' in training_args.output_dir:
-                ## in here
                 print('triples does need discri_labels' )
                 discri_labels = None
             elif 'webnlg' in training_args.output_dir:
-                print('triples does need discri_labels' )
+                ## in here
+                print('webnlg does need discri_labels' )
                 discri_labels = None
             elif 'writingPrompts' in training_args.output_dir:
                 print('writingPrompts does need discri_labels')
@@ -963,6 +964,9 @@ def main():
                 discri_labels = None
             elif 'lemma2text' in training_args.output_dir:
                 print('lemma2text does need discri_labels' )
+                discri_labels = None
+            elif 'lm' in training_args.output_dir:
+                print('language generation does need discri_labels' )
                 discri_labels = None
             else:
                 assert False, 'should have topic/sent in the file name'
@@ -1092,6 +1096,7 @@ def main():
 
         else:
             ## in
+            print('*************** in ????????')
             # should clone the config and construct it.
             config_prefix = AutoConfig.from_pretrained(model_args.model_name_or_path, cache_dir=model_args.cache_dir)
             config_prefix._my_arg_tune_mode = model_args.tuning_mode
@@ -1124,11 +1129,11 @@ def main():
                 model = PrefixEmbTuning(config_prefix, model_gpt2=gpt2)
 
             elif model_args.prefix_mode == 'activation':
+                ## in 
                 model = PrefixTuning(config_prefix, model_gpt2=gpt2)
 
             else:
                 assert False, "invalid prefix mode"
-
 
 
     # Get datasets
@@ -1159,21 +1164,19 @@ def main():
     else:
         ## in here
         if data_args.task_mode == 'lm':
-            train_dataset, eval_dataset = load_lm_dataset(data_args, model_args, training_args, tokenizer, logger)
-
+            train_dataset, eval_dataset = load_lm_dataset(data_args, model_args, tokenizer, logger)
+            
         else:
             train_dataset = (
                 get_dataset(data_args, tokenizer=tokenizer, cache_dir=model_args.cache_dir, training_args=training_args,
                             finetune_mode=(model_args.tuning_mode == 'finetune')) if training_args.do_train else None
             )
-            print('**************** in here')
             eval_dataset = (
                 get_dataset(data_args, tokenizer=tokenizer, evaluate=True, cache_dir=model_args.cache_dir,
                             training_args=training_args, finetune_mode=(model_args.tuning_mode == 'finetune') )
                 if training_args.do_eval
                 else None
             )
-            print('**************** in here')
 
         if config.model_type == "xlnet":
             data_collator = DataCollatorForPermutationLanguageModeling(
@@ -1182,7 +1185,7 @@ def main():
                 max_span_length=data_args.max_span_length,
             )
         else:
-            print('**************** in here')
+            ## in here
             if data_args.task_mode == 'embMatch':
                 data_collator = DataCollatorForEmbMatchLanguageModeling(
                     tokenizer=tokenizer, mlm=data_args.mlm, mlm_probability=data_args.mlm_probability
@@ -1204,7 +1207,8 @@ def main():
                     tokenizer=tokenizer, mlm=data_args.mlm, mlm_probability=data_args.mlm_probability
                 )
             elif data_args.task_mode == 'data2text' or data_args.task_mode== 'triples' or data_args.task_mode == 'webnlg':
-                print('FORMAT MODE IS ', data_args.format_mode)
+                print('FORMAT MODE IS ', data_args.format_mode) # FORMAT MODE IS cat
+                ## in here
                 data_collator = DataCollatorForData2TextLanguageModeling(
                     tokenizer=tokenizer, mlm=data_args.mlm, mlm_probability=data_args.mlm_probability,
                     format_mode=data_args.format_mode
@@ -1279,10 +1283,12 @@ def main():
 
             )
         else:
+            ## in here
             if 'topic' in training_args.output_dir:
                 discri_labels = ['world', 'sports', 'business', 'science']
             elif 'sent' in training_args.output_dir:
                 discri_labels = ['negative', 'positive']
+            ## in here
             trainer = Trainer_Prefix(
                 model=model,
                 tokenizer=tokenizer,
@@ -1327,6 +1333,8 @@ def main():
 
     # Training
 
+    print('******* 1331')
+
     if 'lowdata' in training_args.output_dir:
         eval_output = trainer.evaluate()
         # perplexity = math.exp(eval_output["eval_loss"])
@@ -1338,18 +1346,21 @@ def main():
         out_path = '{}/gptgen_sentiment.txt'.format(training_args.output_dir)
         trainer.gen_data(out_path)
     elif training_args.do_train:
+        ## in
+        print('******* 1345')
         model_path = (
             model_args.model_name_or_path
             if model_args.model_name_or_path is not None and os.path.isdir(model_args.model_name_or_path)
             else None
         )
-
+        print('******* 1351')
         # For convenience, we also re-save the tokenizer to the same directory,
         # so that you can share your model easily on huggingface.co/models =)
         if trainer.is_world_master():
             tokenizer.save_pretrained(training_args.output_dir)
 
         if not (data_args.dataless == 'yes'):
+            ## in
             trainer.train(model_path=model_path)
         elif False:
             trainer.train_dataless(model_path=model_path, verbose=True)
@@ -1357,6 +1368,7 @@ def main():
             trainer.train_amortized_pplm(model_path=model_path, verbose=True)
 
         if 'lowdata' not in training_args.output_dir:
+            print('******* 1366')
             trainer.save_model()
 
             if model_args.tuning_mode == 'bothtune':
@@ -1443,6 +1455,7 @@ def main():
 
 
     elif data_args.task_mode == 'webnlg':
+        print('******* 1449')
         del model
         del trainer
         if model_args.tuning_mode == 'prefixtune':
