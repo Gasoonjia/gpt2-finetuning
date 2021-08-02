@@ -1694,6 +1694,8 @@ class Trainer_Prefix:
                 # print(inputs['attention_mask'].size())
                 # print(inputs['attention_mask'])
                 # exit()
+                # print('****** input_ids:', inputs['input_ids'])
+                # print('****** input words:', self.tokenizer.decode(inputs['input_ids'][0]))
                 tr_loss += self.training_step(model, inputs)
                 # URGENT
                 # print('total_loss', tr_loss)

@@ -584,7 +584,6 @@ class GPT2Model(GPT2PreTrainedModel):
             # print(len(past_key_values[0]))
             # print(past_key_values[0][0].size())
             # shape pf past_key_value is [12, 2, (bsz, 12, 5, 64)]
-            # exit()
             past_length = past_key_values[0][0].size(-2)
         if position_ids is None:
             device = input_ids.device if input_ids is not None else inputs_embeds.device
@@ -592,7 +591,6 @@ class GPT2Model(GPT2PreTrainedModel):
             position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
             # print(position_ids.size())
             # print(position_ids)
-            # exit()
 
         # Attention mask.
         if attention_mask is not None:
@@ -636,6 +634,7 @@ class GPT2Model(GPT2PreTrainedModel):
         if token_type_ids is not None:
             token_type_embeds = self.wte(token_type_ids)
         else:
+            ## in
             token_type_embeds = 0
         hidden_states = inputs_embeds + position_embeds + token_type_embeds
         hidden_states = self.drop(hidden_states)
@@ -701,6 +700,8 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
         super().__init__(config)
         self.transformer = GPT2Model(config)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+        print('self.lm_head.weight.size():', self.lm_head.weight.size())
+        print('config.n_embd: {} config.vocab_size: {}'.format(config.n_embd, config.vocab_size))
 
         # self.emb_trans = nn.Sequential(nn.Linear(1024, config.n_layer * config.n_embd),
         #                                nn.Tanh(),
@@ -966,8 +967,11 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
             return_dict=return_dict,
         )
         hidden_states = transformer_outputs[0]
+        # print(hidden_states.size())
 
-        lm_logits = self.lm_head(hidden_states)
+        lm_logits = self.lm_head(hidden_states) 
+        # print('self.lm_head.weight.size():', self.lm_head.weight.size())
+        # print('lm_logits:', lm_logits.size())
 
         loss = None
         split_loss = None
@@ -987,9 +991,13 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
             weighted_loss = loss * weights
             loss = weighted_loss.sum()
         elif labels is not None and not self.finetune_mode:
+            ## in
             # Shift so that tokens < n predict n
             shift_logits = lm_logits[..., :-1, :].contiguous()
             shift_labels = labels[..., 1:].contiguous()
+            # print('label size: {}'.format(labels.size()))
+            # print('input_ids:', input_ids)
+            # print('labels:', labels)
 
             # URGENT NEW:
             # loss_fct = CrossEntropyLoss()
@@ -1016,12 +1024,15 @@ class GPT2LMHeadModel(GPT2PreTrainedModel):
                 # seqlen_dim = (shift_labels != -100).sum(dim=-1)
                 # loss = loss.view(bsz, seqlen).sum(dim=-1) / seqlen_dim
             elif self._objective_mode == 1:
+                ## in
                 # print('1 is the objective...')
                 loss_fct = CrossEntropyLoss(reduction='none')
                 bsz, seqlen, vocab_size = shift_logits.shape
+                # print('shift_logits.size(): {}'.format(shift_logits.size()))
+                # print('shift_labels.size(): {}'.format(shift_labels.size()))
                 loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
                 loss = loss.view(bsz, seqlen).sum(dim=-1)
-
+                # print('loss.size(): {}'.format((bsz, seqlen)))
 
 
             # OLD

@@ -1152,6 +1152,9 @@ class Trainer:
         # Save past state if it exists
         if self.args.past_index >= 0:
             self._past = outputs[self.args.past_index]
+        
+        print(outputs[0])
+        exit()
 
         # print(outputs[0])
         # We don't use .loss here since the model may return tuples instead of ModelOutput.

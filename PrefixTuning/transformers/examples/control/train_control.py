@@ -32,6 +32,9 @@ class PrefixTuning(GPT2PreTrainedModel):
         self.match_n_embd = config.n_embd // config.n_head
         self.n_embd = config.n_embd
 
+        ## songhao added for debugging
+        self._debug_count = 0
+
 
         if hasattr(config, 'optim_prefix'):
             self.optim_prefix = config.optim_prefix
@@ -568,7 +571,7 @@ class PrefixTuning(GPT2PreTrainedModel):
                 **kwargs,
         ):
 
-        #{"input_ids": batch, "labels": labels, 'src_attn': src_attn, 'tgt_attn':tgt_attn, 'src':src}
+        # {"input_ids": batch, "labels": labels, 'src_attn': src_attn, 'tgt_attn':tgt_attn, 'src':src}
 
         # self.mode_para should be 0. Need to double check
 
@@ -582,6 +585,17 @@ class PrefixTuning(GPT2PreTrainedModel):
             assert False, "Attention, use past_key_values for other things"
         else:
             past_key_values = past_key_values_prompt
+        
+        # shape pf past_key_value is [12, 2, (bsz, 12, 5, 64)]
+        
+        # print(past_key_values[0][0])
+
+        # print('==========================================================================')
+        
+        # if self._debug_count == 5:
+        #     exit()
+        
+        self._debug_count += 1
 
         if gpt2_model is None:
             assert False, "Didn't specify gpt2 model"
@@ -591,10 +605,10 @@ class PrefixTuning(GPT2PreTrainedModel):
         output = gpt2_model(input_ids=input_ids, control_code=None, weights=weights, emb_match=emb_match,
                             past_key_values=past_key_values, attention_mask=attention_mask,
                             token_type_ids=token_type_ids, position_ids=position_ids,
-                           head_mask=head_mask, inputs_embeds=inputs_embeds, encoder_hidden_states=encoder_hidden_states,
-                           encoder_attention_mask=encoder_attention_mask, labels=labels, use_cache=use_cache,
-                           output_attentions=output_attentions, output_hidden_states=output_hidden_states,
-                           return_dict=return_dict, **kwargs)
+                            head_mask=head_mask, inputs_embeds=inputs_embeds, encoder_hidden_states=encoder_hidden_states,
+                            encoder_attention_mask=encoder_attention_mask, labels=labels, use_cache=use_cache,
+                            output_attentions=output_attentions, output_hidden_states=output_hidden_states,
+                            return_dict=return_dict, **kwargs)
 
         return output
 
@@ -1090,8 +1104,6 @@ class PrefixEmbTuning(GPT2PreTrainedModel):
         if self.mode_para == 2:
             past_key_values_prompt = self.get_prompt(src, gpt2=gpt2_model, bsz=bsz)
         else:
-            print(control_code.size())
-            exit() # maybe bs * n_transformer_layers * n_prefix_length * n_feat
             past_key_values_prompt = self.get_prompt(control_code, gpt2=gpt2_model, bsz=bsz)
         if past_key_values is not None:
             assert False, "Attention, use past_key_values for other things"
