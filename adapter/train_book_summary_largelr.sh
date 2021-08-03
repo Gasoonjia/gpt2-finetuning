@@ -1,7 +1,7 @@
 # DATA_FILE=/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/dataset/booksummaries.txt
 DATA_FILE=../cmu-book/train.txt
 EVAL_FILE=stas/openwebtext-10k
-OUTPUT_DIR=../ckpt/adapter_output/book_summary/
+OUTPUT_DIR=../ckpt/adapter_output/book_summary_largelr/
 
 python run_adapter_gpt2.py \
 --output_dir=$OUTPUT_DIR \

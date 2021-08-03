@@ -22,7 +22,7 @@ python run_adapter_gpt2.py \
 --optimizer_type RecAdam \
 --cache_dir ~/code/.transformer_cache/ \
 --save_strategy epoch \
---resume_from_checkpoint $OUTPUT_DIR\
+--resume_from_checkpoint $CKPT_DIR\
 # --logging_strategy epoch \
 # --evaluate_during_training \
 # --line_by_line \
