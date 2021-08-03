@@ -2,7 +2,7 @@
 DATA_FILE=../cmu-book/train.txt
 EVAL_FILE=stas/openwebtext-10k
 OUTPUT_DIR=../ckpt/adapter_output/book_summary_finetune/
-CKPT_DIR=../ckpt/adapter_output/book_summary/checkpoint-88800/summary_adapter/pytorch_model_head.bin
+CKPT_DIR=../ckpt/adapter_output/book_summary/checkpoint-88800
 
 python run_adapter_gpt2.py \
 --output_dir=$OUTPUT_DIR \
