@@ -3,4 +3,4 @@ medical-nlp
 cmu-book
 *.pyc
 PrefixTuning/transformers/examples/control/webnlg_models
-ckpts
+ckpt

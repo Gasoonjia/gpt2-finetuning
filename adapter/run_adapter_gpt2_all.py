@@ -405,6 +405,10 @@ def main():
 
     model.resize_token_embeddings(len(tokenizer))
 
+    # try to optimize all parameters
+    for param in model.base_model.parameters(): ## base_model is the main part of model, a.k.a torch.nn.Module
+        param.requires_grad = True
+
 
     # Preprocessing the datasets.
     # First we tokenize all the texts.
