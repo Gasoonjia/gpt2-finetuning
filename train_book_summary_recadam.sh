@@ -1,7 +1,7 @@
 # DATA_FILE=/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/dataset/booksummaries.txt
 DATA_FILE=../cmu-book/train.txt
 EVAL_FILE=stas/openwebtext-10k
-OUTPUT_DIR=../cmu-book/train_output
+OUTPUT_DIR=../ckpt/recadam_output/book_summary/
 
 python run_gpt2_recadam.py \
 --output_dir=$OUTPUT_DIR \
@@ -22,6 +22,7 @@ python run_gpt2_recadam.py \
 --cache_dir ~/code/.transformer_cache/ \
 --recadam_anneal_k 5e-4 \
 --recadam_anneal_t0 0 \
+--save_strategy epoch \
 # --logging_strategy epoch \
 # --evaluate_during_training \
 # --line_by_line \

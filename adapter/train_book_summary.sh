@@ -1,7 +1,7 @@
 # DATA_FILE=/home/gasoon/research/offline-rl/exp/GPT2-finetune/cmu-book/dataset/booksummaries.txt
 DATA_FILE=../cmu-book/train.txt
 EVAL_FILE=stas/openwebtext-10k
-OUTPUT_DIR=../cmu-book/train_output
+OUTPUT_DIR=../ckpt/adapter_output/book_summary/
 
 python run_adapter_gpt2.py \
 --output_dir=$OUTPUT_DIR \
@@ -20,6 +20,7 @@ python run_adapter_gpt2.py \
 --train_file=$DATA_FILE \
 --optimizer_type RecAdam \
 --cache_dir ~/code/.transformer_cache/ \
+--save_strategy epoch \
 # --logging_strategy epoch \
 # --evaluate_during_training \
 # --line_by_line \
