@@ -31,7 +31,7 @@ from typing import Optional
 import datasets
 from datasets import load_dataset
 
-import transformers
+import transformers as transformers
 from transformers import (
     CONFIG_MAPPING,
     MODEL_FOR_CAUSAL_LM_MAPPING,
@@ -132,6 +132,17 @@ class ModelArguments:
     optimizer_type: str = field(
         default=None,
         metadata={"help": "The optimizer adopted by modal during training"},
+    )
+
+    tuning_mode: str = field(
+        default='adapter',
+        metadata={"help": "Tuning mode for training. Three modes: adapter for only training adapter, \
+                            all for train all model, top means training {{top_layers}} layers. top_layers would be another parameter in model_augment"},
+    )
+
+    top_layers: int = field(
+        default=-1,
+        metadata={"help": "Number of layers the modal would be finetuned during training."},
     )
 
     def __post_init__(self):
@@ -398,6 +409,26 @@ def main():
 
     model.add_adapter('summary_adapter')
     model.train_adapter('summary_adapter')
+
+    if model_args.tuning_mode == 'finetune-top':
+        # print(model.config)
+        # print(model)
+        total_params = 0
+
+        for param in model.base_model.parameters():
+            param.requires_grad = False
+        
+        top_layers = model_args.top_layers
+        freeze_modules = ['transformer.wte', 'transformer.ln_f.'] # whether wte would exist in 
+        for i in range(top_layers):
+            freeze_modules.append('transformer.h.{}.'.format(11-i))
+        
+        for name, param in model.named_parameters():
+            if any(s in name for s in freeze_modules):
+                param.requires_grad = True
+                total_params += param.numel()
+
+        print('*********** [top layers finetune] the total number of trainable parameters is {}'.format(total_params))
 
     # special_tokens_dict = {'bos_token': '<BOS>', 'eos_token': '<EOS>', 'pad_token': '<PAD>'}
     # special_tokens_dict = {'pad_token': '<PAD>'}
